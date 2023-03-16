@@ -1,6 +1,6 @@
-# Open62541 C++ Library for Open62541 version 1.2
+# Open62541 C++ Library for Open62541 version 1.3.5
 
-This is a set of wrapper classes for the Open62541 C OPC UA library version 1.3.5 The objective is to reduce the code 
+This is a set of wrapper classes for the Open62541 C OPC UA library version 1.2 The objective is to reduce the code 
 required, by a considerable amount, and allow object orientated coding.
 
 Do not assume any OPC UA feature is implemented or complete or optimally done. Support will be added as and when 
