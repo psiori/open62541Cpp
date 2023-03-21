@@ -79,6 +79,10 @@
 #include <string>
 #include <stdint.h>
 #if defined(__GNUC__)
+#ifdef __APPLE__
+#include <mach/error.h>
+#endif
+#else
 #include <error.h>
 #endif
 //
@@ -1272,7 +1276,7 @@ public:
 
     //feat: Add member function for array dimension and size
     template <typename T>
-    Variant getVariantMatrix(const UA_UInt32 rows, const UA_UInt32 cols,const size_t dim_size, const UA_DataType *type,const int value_rank,const T* array) 
+    Variant getVariantMatrix(const UA_UInt32 rows, const UA_UInt32 cols,const size_t dim_size, const UA_DataType *type,const int value_rank,const T* array)
     {
         *this = UA_VariableAttributes_default;
         Variant variant;
@@ -1283,7 +1287,7 @@ public:
         get().arrayDimensionsSize = dim_size;
         get().arrayDimensions[0]=rows;
         get().arrayDimensions[1]=cols;
-        
+
         //Set the value from the argument array. The array dimensions need to be the same for the value
         size_t arraySize = sizeof(*array) / sizeof(array);
         UA_Variant_setArrayCopy(&get().value, array, arraySize, type);

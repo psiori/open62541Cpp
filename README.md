@@ -1,6 +1,6 @@
-# Open62541 C++ Library for Open62541 version 1.1.3
+# Open62541 C++ Library for Open62541 version 1.3.5
 
-This is a set of wrapper classes for the Open62541 C OPC UA library version 1.2. The objective is to reduce the code 
+This is a set of wrapper classes for the Open62541 C OPC UA library version 1.2 The objective is to reduce the code 
 required, by a considerable amount, and allow object orientated coding.
 
 Do not assume any OPC UA feature is implemented or complete or optimally done. Support will be added as and when 
@@ -47,32 +47,33 @@ The examples demonstrate how to use the library.  Some are analogs of the C libr
 2.  Boost
 
 This is the configuration used for the open62541 C library:
-
+```
 BUILD_SHARED_LIBS                ON
- CLANG_FORMAT_EXE                 CLANG_FORMAT_EXE-NOTFOUND
- CMAKE_BUILD_TYPE                 Debug
- CMAKE_INSTALL_PREFIX             /usr/local
- MDNSD_LOGLEVEL                   300
- UA_ARCHITECTURE                  posix
- UA_BUILD_EXAMPLES                ON
- UA_BUILD_TOOLS                   ON
- UA_BUILD_UNIT_TESTS              OFF
- UA_ENABLE_AMALGAMATION           OFF
- UA_ENABLE_DA                     ON
- UA_ENABLE_DISCOVERY              ON
- UA_ENABLE_DISCOVERY_MULTICAST    ON
- UA_ENABLE_ENCRYPTION             ON
- UA_ENABLE_ENCRYPTION_MBEDTLS     OFF
- UA_ENABLE_ENCRYPTION_OPENSSL     ON
- UA_ENABLE_HISTORIZING            ON
- UA_ENABLE_METHODCALLS            ON
- UA_ENABLE_MICRO_EMB_DEV_PROFIL   OFF
- UA_ENABLE_NODEMANAGEMENT         ON
- UA_ENABLE_PARSING                ON
- UA_ENABLE_SUBSCRIPTIONS          ON
- UA_ENABLE_SUBSCRIPTIONS_ALARMS   ON
- UA_ENABLE_SUBSCRIPTIONS_EVENTS   ON
- UA_ENABLE_WEBSOCKET_SERVER       OFF
- UA_LOGLEVEL                      300
- UA_MULTITHREADING                110
- UA_NAMESPACE_ZERO                FULL
+CLANG_FORMAT_EXE                 CLANG_FORMAT_EXE-NOTFOUND
+CMAKE_BUILD_TYPE                 Debug
+CMAKE_INSTALL_PREFIX             /usr/local
+MDNSD_LOGLEVEL                   300
+UA_ARCHITECTURE                  posix
+UA_BUILD_EXAMPLES                ON
+UA_BUILD_TOOLS                   ON
+UA_BUILD_UNIT_TESTS              OFF
+UA_ENABLE_AMALGAMATION           OFF
+UA_ENABLE_DA                     ON
+UA_ENABLE_DISCOVERY              ON
+UA_ENABLE_DISCOVERY_MULTICAST    ON
+UA_ENABLE_ENCRYPTION             ON
+UA_ENABLE_ENCRYPTION_MBEDTLS     OFF
+UA_ENABLE_ENCRYPTION_OPENSSL     ON
+UA_ENABLE_HISTORIZING            ON
+UA_ENABLE_METHODCALLS            ON
+UA_ENABLE_MICRO_EMB_DEV_PROFIL   OFF
+UA_ENABLE_NODEMANAGEMENT         ON
+UA_ENABLE_PARSING                ON
+UA_ENABLE_SUBSCRIPTIONS          ON
+UA_ENABLE_SUBSCRIPTIONS_ALARMS   ON
+UA_ENABLE_SUBSCRIPTIONS_EVENTS   ON
+UA_ENABLE_WEBSOCKET_SERVER       OFF
+UA_LOGLEVEL                      300
+UA_MULTITHREADING                110
+UA_NAMESPACE_ZERO                FULL
+```

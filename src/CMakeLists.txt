@@ -54,5 +54,5 @@ install(TARGETS ${OPEN62541_CPP}
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
-        INCLUDES DESTINSTION include
+        INCLUDES DESTINATION include
         )
