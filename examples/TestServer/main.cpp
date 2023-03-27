@@ -59,6 +59,11 @@ void TestServer::initialise()
         Open62541::Variant numberValue(v);
         cout << "_repeatedEvent called setting number value = " << v << endl;
         s.server()->writeValue(nodeNumber, numberValue);
+
+        // Check the boolean value
+        // Open62541::NodeId nodeB(_idx, "BOOLEAN_Value");
+        // Open62541::Variant booleanVarian;
+        // s.server()->readValue(nodeB, booleanVarian);
     });
 
     // Add one shot timer
@@ -88,7 +93,7 @@ void TestServer::initialise()
             cout << "Failed to set value callback" << endl;
         }
     }
-    
+
    //Example adding an array by setting it with setArrayCopy
     Open62541::NodeId setArrayCopy_array_id(_idx, "Array_By_Copy");
     UA_Double setArrayCopy_temp_array[4] = {1.0, 2.0, 3.0, 4.0};
@@ -108,7 +113,7 @@ void TestServer::initialise()
     setArray_variant.setArray(setArray_array , setArray_array_size, &UA_TYPES[UA_TYPES_DOUBLE]);
     addVariable(setArrayCopy_array_id, "Array_By_Set", setArray_variant , setArray_array_id, Open62541::NodeId::Null);
 
-    //Example adding a matrix 
+    //Example adding a matrix
     Open62541::NodeId test_matrix_id(_idx, "Matrix_Example");
     Open62541::VariableAttributes vattr;
     Open62541::Variant vattr_value;
@@ -133,6 +138,19 @@ void TestServer::initialise()
     Open62541::Variant numberValue(1);
     if (!addVariable(Open62541::NodeId::Objects, "Number_Value", numberValue, nodeNumber, Open62541::NodeId::Null)) {
         cout << "Failed to create Number Value Node " << endl;
+    }
+
+    Open62541::Variant booleanValue(false);
+    cout << "Create BOOLEAN_Value:: " << booleanValue.toString() << endl;
+
+    cout << "is bool ?:: " << (booleanValue.get().type->typeKind == UA_DATATYPEKIND_BOOLEAN) << endl;
+
+    bool val = static_cast<bool>((UA_Boolean*)booleanValue.get().data);
+    cout << "-------- value:: " << val << endl;
+
+    Open62541::NodeId nodeBoolean(_idx, "BOOLEAN_Value");
+    if (!addVariable(Open62541::NodeId::Objects, "BOOLEAN_Value", booleanValue, nodeBoolean, Open62541::NodeId::Null)) {
+        cout << "Failed to create boolean Value Node " << endl;
     }
     //
     // Create TestMethod node

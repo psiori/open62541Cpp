@@ -33,13 +33,65 @@ int main()
         if (idx > 1) {
             cout << "Connected" << endl;
             UA_UInt32 subId = 0;
+
             if (client.addSubscription(subId)) {
                 cout << "Subscription Created id = " << subId << endl;
-                auto f = [](Open62541::ClientSubscription& c, Open62541::MonitoredItem *m, UA_DataValue* v) {
-                    cout << "Data Change SubId " << c.id()
-                         << " Monitor Item Id " << m->id()
-                         << " Value " << v->value.type->typeName << " "
-                         << Open62541::dataValueToString(v) << endl;
+                auto f = [&client,
+                          idx](Open62541::ClientSubscription& c, Open62541::MonitoredItem* m, UA_DataValue* v) {
+                    cout << "Data Change SubId " << c.id() << " Monitor Item Id " << m->id() << " Value "
+                         << v->value.type->typeName << " " << Open62541::dataValueToString(v) << endl;
+
+                    cout << endl;
+
+                    Open62541::NodeId nodeNumber(idx, "BOOLEAN_Value");
+                    Open62541::Variant nodeValue;
+                    if (client.readValueAttribute(nodeNumber, nodeValue)) {
+                        if (nodeValue) {
+                            cout << " -- readValueAttribute: <" << idx << "> , " << nodeValue.toString() << endl;
+                        }
+                        else {
+                            cout << " Could not readValueAttribute for NodeId: "
+                                 << Open62541::toString(nodeNumber);
+                        }
+                    }
+                    else {
+                        cout << " Could not readValueAttribute";
+                    }
+
+                    /////
+                    static bool BOOLvalue = true;
+                    BOOLvalue             = !BOOLvalue;
+                    Open62541::Variant data(BOOLvalue);
+
+                    cout << "  attempting to setValueAttribute < " << data.toString() << " > for ["
+                         << BOOLvalue << "] NodeId: " << Open62541::toString(nodeNumber) << endl;
+                    // Now write the real data
+                    auto writeResult = client.setValueAttribute(nodeNumber, data);
+                    if (writeResult) {
+                        cout << " successfully wrote data: < " << Open62541::variantToString(data.get()) << " > for ["
+                             << BOOLvalue << "] on NodeId: " << Open62541::toString(nodeNumber) << endl;
+
+                        // Retrieve again to check
+                        if (client.readValueAttribute(nodeNumber, nodeValue)) {
+                            if (nodeValue) {
+                                cout << " -- readValueAttribute: <" << idx << "> , " << nodeValue.toString() << endl;
+                            }
+                            else {
+                                cout << " Could not readValueAttribute "
+                                        "for NodeId: "
+                                     << Open62541::toString(nodeNumber);
+                            }
+                        }
+                        else {
+                            cout << " Could not readValueAttribute";
+                        }
+                    }
+                    else {
+                        cout << "  could not setValueAttribute for "
+                                "NodeID: "
+                             << Open62541::toString(nodeNumber) << " , data: " << data << ": " << data.toString();
+                        return false;
+                    }
                 };
 
                 //
@@ -56,6 +108,7 @@ int main()
                 // run for one minute
                 //
                 for (int j = 0; j < 60; j++) {
+                    std::cout << "[" << j << "] client.runIterate( );" << std::endl;
                     client.runIterate(1000);
                 }
                 cout << "Ended Run - Test if deletes work correctly" << endl;
