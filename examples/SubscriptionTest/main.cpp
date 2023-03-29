@@ -33,7 +33,6 @@ int main()
         if (idx > 1) {
             cout << "Connected" << endl;
             UA_UInt32 subId = 0;
-
             if (client.addSubscription(subId)) {
                 cout << "Subscription Created id = " << subId << endl;
                 auto f = [&client,
@@ -50,8 +49,7 @@ int main()
                             cout << " -- readValueAttribute: <" << idx << "> , " << nodeValue.toString() << endl;
                         }
                         else {
-                            cout << " Could not readValueAttribute for NodeId: "
-                                 << Open62541::toString(nodeNumber);
+                            cout << " Could not readValueAttribute for NodeId: " << Open62541::toString(nodeNumber);
                         }
                     }
                     else {
@@ -63,8 +61,8 @@ int main()
                     BOOLvalue             = !BOOLvalue;
                     Open62541::Variant data(BOOLvalue);
 
-                    cout << "  attempting to setValueAttribute < " << data.toString() << " > for ["
-                         << BOOLvalue << "] NodeId: " << Open62541::toString(nodeNumber) << endl;
+                    cout << "  attempting to setValueAttribute < " << data.toString() << " > for [" << BOOLvalue
+                         << "] NodeId: " << Open62541::toString(nodeNumber) << endl;
                     // Now write the real data
                     auto writeResult = client.setValueAttribute(nodeNumber, data);
                     if (writeResult) {
@@ -74,12 +72,10 @@ int main()
                         // Retrieve again to check
                         if (client.readValueAttribute(nodeNumber, nodeValue)) {
                             if (nodeValue) {
-                                cout << " -- readValueAttribute: <" << idx << "> , " << nodeValue.toString() << endl;
+                                cout << " checking readValueAttribute: " << nodeValue.toString() << endl;
                             }
                             else {
-                                cout << " Could not readValueAttribute "
-                                        "for NodeId: "
-                                     << Open62541::toString(nodeNumber);
+                                cout << " Could not readValueAttribute for NodeId: " << Open62541::toString(nodeNumber);
                             }
                         }
                         else {
@@ -87,8 +83,7 @@ int main()
                         }
                     }
                     else {
-                        cout << "  could not setValueAttribute for "
-                                "NodeID: "
+                        cout << " could not setValueAttribute for NodeID: "
                              << Open62541::toString(nodeNumber) << " , data: " << data << ": " << data.toString();
                         return false;
                     }
