@@ -141,11 +141,12 @@ void TestServer::initialise()
     }
 
     Open62541::Variant booleanValue(false);
-    cout << "Create BOOLEAN_Value:: " << booleanValue.toString() << endl;
+    cout << "Create BOOLEAN_Value"<< endl;
+    cout << "-------- booleanValue.toString(): "<< booleanValue.toString() << endl;
 
     cout << "is bool ?:: " << (booleanValue.get().type->typeKind == UA_DATATYPEKIND_BOOLEAN) << endl;
 
-    bool val = static_cast<bool>((UA_Boolean*)booleanValue.get().data);
+    bool val = static_cast<bool>(*(UA_Boolean*)booleanValue.get().data);
     cout << "-------- value:: " << val << endl;
 
     Open62541::NodeId nodeBoolean(_idx, "BOOLEAN_Value");
