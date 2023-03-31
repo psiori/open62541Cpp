@@ -94,7 +94,7 @@ std::string Open62541::variantToString(UA_Variant& v)
             ^^^^^^^
         */
         case UA_DATATYPEKIND_BOOLEAN: {
-            ret = ((UA_Boolean*)(v.data)) ? "true" : "false";
+            ret = (*(UA_Boolean*)(v.data)) ? "true" : "false";
         } break;
 
         /**
