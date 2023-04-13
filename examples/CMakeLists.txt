@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
 project(Open62541cppExamples)
-# Add the test 
+# Add the tests
 add_subdirectory(TestServer)
 add_subdirectory(TestClient)
+add_subdirectory(TestClientCustomConfig)
 add_subdirectory(VariableTest)
 add_subdirectory(SubscriptionTest)
 add_subdirectory(ServerDiscoverable)

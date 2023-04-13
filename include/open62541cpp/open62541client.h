@@ -224,6 +224,73 @@ public:
             UA_Client_getConfig(_client)->subscriptionInactivityCallback = subscriptionInactivityCallback;
         }
     }
+
+    /*!
+     * \brief Initialise the client without default configuration
+     */
+    void initialiseNoConfig()
+    {
+        if (_client) {
+            disconnect();
+            UA_Client_delete(_client);
+            _client = nullptr;
+        }
+        _client = UA_Client_new();
+    }
+
+    /*!
+     * \brief Returns the clients default configuration if initialised
+     */
+    UA_ClientConfig* getConfig()
+    {
+        if (_client) {
+            return UA_Client_getConfig(_client);
+        }
+        return nullptr;
+    }
+
+    /*!
+     * \brief Initialise custom client config
+     */
+    void setCustomConfig(UA_ClientConfig* clientConfig)
+    {
+        if (_client) {
+            UA_ClientConfig_setDefault(clientConfig);
+            UA_Client_getConfig(_client)->clientContext                  = this;
+            UA_Client_getConfig(_client)->stateCallback                  = stateCallback;
+            UA_Client_getConfig(_client)->subscriptionInactivityCallback = subscriptionInactivityCallback;
+        }
+    }
+
+    /*!
+     * \brief Auxiliary typedef for logger function defined at /include/open62541/plugin/log.h
+     */
+    typedef void (*LoggerFuncPtr)(void*, UA_LogLevel, UA_LogCategory, const char*, va_list);
+
+    /*!
+     * \brief Set custom logger function for client config
+     */
+    void setCustomLogger(LoggerFuncPtr loggerFuncPtr)
+    {
+        if (_client) {
+            // Retrieve current client configuration
+            UA_ClientConfig* clientConfig = UA_Client_getConfig(_client);
+
+            // Create a UA_Logger structure with the custom log function
+            UA_Logger customLogger = (UA_Logger){
+                .log     = loggerFuncPtr,
+                .clear   = clientConfig->logger.clear,   // Recycle previous
+                .context = clientConfig->logger.context  // Recycle previous
+            };
+            // Set the clientConfig logger to use the customLogger
+            clientConfig->logger = customLogger;
+
+            UA_ClientConfig_setDefault(clientConfig);
+            UA_Client_getConfig(_client)->clientContext                  = this;
+            UA_Client_getConfig(_client)->stateCallback                  = stateCallback;
+            UA_Client_getConfig(_client)->subscriptionInactivityCallback = subscriptionInactivityCallback;
+        }
+    }
     /*!
         \brief asyncService - handles callbacks when connected async mode
         \param requestId
@@ -527,6 +594,27 @@ public:
     bool connect(const std::string& endpointUrl)
     {
         initialise();
+        WriteLock l(_mutex);
+        if (!_client)
+            throw std::runtime_error("Null client");
+        _lastError = UA_Client_connect(_client, endpointUrl.c_str());
+        if (lastOK()) {
+            _connectionType = ConnectionType::CONNECTION;
+        }
+        else {
+            _connectionType = ConnectionType::NONE;
+        }
+        return lastOK();
+    }
+
+    /*!
+        \brief connect
+        \param endpointUrl
+        \return true on success
+    */
+    bool connectNoInit(const std::string& endpointUrl)
+    {
+        // initialise();
         WriteLock l(_mutex);
         if (!_client)
             throw std::runtime_error("Null client");
