@@ -279,8 +279,8 @@ public:
             // Create a UA_Logger structure with the custom log function
             UA_Logger customLogger = (UA_Logger){
                 .log     = loggerFuncPtr,
-                .clear   = clientConfig->logger.clear,   // Recycle previous
-                .context = clientConfig->logger.context  // Recycle previous
+                .context = clientConfig->logger.context,  // Recycle previous
+                .clear   = clientConfig->logger.clear     // Recycle previous
             };
             // Set the clientConfig logger to use the customLogger
             clientConfig->logger = customLogger;
@@ -875,7 +875,7 @@ public:
         \brief NodeIdFromPath get the node id from the path of browse names in the given namespace. Tests for node
        existance \param path \param nodeId \return  true on success
     */
-    bool nodeIdFromPath(const NodeId &start, Path& path, NodeId& nodeId);
+    bool nodeIdFromPath(const NodeId& start, Path& path, NodeId& nodeId);
 
     /*!
         \brief createPath
