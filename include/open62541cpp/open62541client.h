@@ -209,7 +209,7 @@ public:
     /*!
      * \brief initialise
      */
-    void initialise()
+    void initialise(bool setDefaultConfig = true)
     {
         if (_client) {
             disconnect();
@@ -217,6 +217,9 @@ public:
             _client = nullptr;
         }
         _client = UA_Client_new();
+        if (!setDefaultConfig) {
+            return;
+        }
         if (_client) {
             UA_ClientConfig_setDefault(UA_Client_getConfig(_client));  // initalise the client structure
             UA_Client_getConfig(_client)->clientContext                  = this;
@@ -224,20 +227,6 @@ public:
             UA_Client_getConfig(_client)->subscriptionInactivityCallback = subscriptionInactivityCallback;
         }
     }
-
-    /*!
-     * \brief Initialise the client without default configuration
-     */
-    void initialiseNoConfig()
-    {
-        if (_client) {
-            disconnect();
-            UA_Client_delete(_client);
-            _client = nullptr;
-        }
-        _client = UA_Client_new();
-    }
-
     /*!
      * \brief Returns the clients default configuration if initialised
      */
@@ -591,30 +580,11 @@ public:
         \param endpointUrl
         \return true on success
     */
-    bool connect(const std::string& endpointUrl)
+    bool connect(const std::string& endpointUrl, bool init = true)
     {
-        initialise();
-        WriteLock l(_mutex);
-        if (!_client)
-            throw std::runtime_error("Null client");
-        _lastError = UA_Client_connect(_client, endpointUrl.c_str());
-        if (lastOK()) {
-            _connectionType = ConnectionType::CONNECTION;
+        if (init) {
+            initialise();
         }
-        else {
-            _connectionType = ConnectionType::NONE;
-        }
-        return lastOK();
-    }
-
-    /*!
-        \brief connect
-        \param endpointUrl
-        \return true on success
-    */
-    bool connectNoInit(const std::string& endpointUrl)
-    {
-        // initialise();
         WriteLock l(_mutex);
         if (!_client)
             throw std::runtime_error("Null client");
@@ -635,9 +605,14 @@ public:
         @param username
         @param password
         @return Indicates whether the operation succeeded or returns an error code */
-    bool connectUsername(const std::string& endpoint, const std::string& username, const std::string& password)
+    bool connectUsername(const std::string& endpoint,
+                         const std::string& username,
+                         const std::string& password,
+                         bool init = true)
     {
-        initialise();
+        if (init) {
+            initialise();
+        }
         WriteLock l(_mutex);
         if (!_client)
             throw std::runtime_error("Null client");
@@ -655,9 +630,11 @@ public:
         \param endpoint
         \return Indicates whether the operation succeeded or returns an error code
     */
-    bool connectAsync(const std::string& endpoint)
+    bool connectAsync(const std::string& endpoint, bool init = true)
     {
-        initialise();
+        if (init) {
+            initialise();
+        }
         WriteLock l(_mutex);
         if (!_client)
             throw std::runtime_error("Null client");
@@ -676,9 +653,11 @@ public:
      * \param endpoint
      * \return Indicates whether the operation succeeded or returns an error code
      */
-    bool connectSecureChannel(const std::string& endpoint)
+    bool connectSecureChannel(const std::string& endpoint, bool init = true)
     {
-        initialise();
+        if (init) {
+            initialise();
+        }
         WriteLock l(_mutex);
         if (!_client)
             throw std::runtime_error("Null client");
@@ -698,9 +677,11 @@ public:
      * \param endpoint
      * \return Indicates whether the operation succeeded or returns an error code
      */
-    bool connectSecureChannelAsync(const std::string& endpoint)
+    bool connectSecureChannelAsync(const std::string& endpoint, bool init = true)
     {
-        initialise();
+        if (init) {
+            initialise();
+        }
         WriteLock l(_mutex);
         if (!_client)
             throw std::runtime_error("Null client");
@@ -875,7 +856,7 @@ public:
         \brief NodeIdFromPath get the node id from the path of browse names in the given namespace. Tests for node
        existance \param path \param nodeId \return  true on success
     */
-    bool nodeIdFromPath(const NodeId &start, Path& path, NodeId& nodeId);
+    bool nodeIdFromPath(const NodeId& start, Path& path, NodeId& nodeId);
 
     /*!
         \brief createPath
