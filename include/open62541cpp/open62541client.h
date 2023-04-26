@@ -208,6 +208,7 @@ public:
     }
     /*!
      * \brief initialise
+     * \param setDefaultConfig Initialises the client with a default configuration
      */
     void initialise(bool setDefaultConfig = true)
     {
@@ -578,6 +579,7 @@ public:
     /*!
         \brief connect
         \param endpointUrl
+        \param init (Re)Initialises the client
         \return true on success
     */
     bool connect(const std::string& endpointUrl, bool init = true)
@@ -604,11 +606,12 @@ public:
         @param endpointURL to connect (for example "opc.tcp://localhost:16664")
         @param username
         @param password
+        @param init (Re)Initialises the client
         @return Indicates whether the operation succeeded or returns an error code */
     bool connectUsername(const std::string& endpoint,
                          const std::string& username,
                          const std::string& password,
-                         bool init = true)
+                         const bool init = true)
     {
         if (init) {
             initialise();
@@ -628,6 +631,7 @@ public:
     /*!
         \brief connectAsync
         \param endpoint
+        \param init (Re)Initialises the client
         \return Indicates whether the operation succeeded or returns an error code
     */
     bool connectAsync(const std::string& endpoint, bool init = true)
@@ -651,6 +655,7 @@ public:
     /*!
      * \brief connectSecureChannel
      * \param endpoint
+     * \param init (Re)Initialises the client
      * \return Indicates whether the operation succeeded or returns an error code
      */
     bool connectSecureChannel(const std::string& endpoint, bool init = true)
@@ -675,6 +680,7 @@ public:
     /*!
      * \brief connectSecureChannelAsync
      * \param endpoint
+     * \param init (Re)Initialises the client
      * \return Indicates whether the operation succeeded or returns an error code
      */
     bool connectSecureChannelAsync(const std::string& endpoint, bool init = true)
