@@ -19,18 +19,22 @@ std::string dumpClientConfigToString(const UA_ClientConfig* config)
     std::string result;
 
     result += "UA_ClientConfig {\n";
-    result += "\ttimeout = " + to_string(config->timeout) + "ms\n";
-    result += "\tsecureChannelLifeTime = " + to_string(config->secureChannelLifeTime) + "ms\n";
-    result += "\trequestedSessionTimeout = " + to_string(config->requestedSessionTimeout) + "ms\n";
-    result += "\tsecurityPoliciesSize = " + to_string(config->securityPoliciesSize) + "\n";
+    result += "\t timeout = " + to_string(config->timeout) + "ms\n";
+    result += "\t secureChannelLifeTime = " + to_string(config->secureChannelLifeTime) + "ms\n";
+    result += "\t requestedSessionTimeout = " + to_string(config->requestedSessionTimeout) + "ms\n";
+    result += "\t securityPoliciesSize = " + to_string(config->securityPoliciesSize) + "\n";
     if (config->securityPoliciesSize > 0)
-        result += "\tsecurityPolicies->policyUri = " + UAString2String(config->securityPolicies[0].policyUri) + "\n";
+        for (size_t i = 0; i < config->securityPoliciesSize; i++)
+            result += "\t securityPolicies->policyUri[" + to_string(i) + "] = "
+                   + UAString2String(config->securityPolicies[i].policyUri) + "\n";
     // result += "\tsecurityPolicies->localCertificate = " + UAString2String(config->securityPolicies->localCertificate)
     // + "\n";
-    result += "\tapplicationUri = " + UAString2String(config->applicationUri) + "\n";
-    result += "\tsecurityPolicyUri = " + UAString2String(config->securityPolicyUri) + "\n";
-    result += "\toutStandingPublishRequests = " + to_string(config->outStandingPublishRequests) + "\n";
-    result += "\tsessionLocaleIdsSize = " + to_string(config->sessionLocaleIdsSize) + "\n";
+    result +=
+        "\t clientDescription.applicationUri = " + UAString2String(config->clientDescription.applicationUri) + "\n";
+    result += "\t applicationUri = " + UAString2String(config->applicationUri) + "\n";
+    result += "\t securityPolicyUri = " + UAString2String(config->securityPolicyUri) + "\n";
+    result += "\t outStandingPublishRequests = " + to_string(config->outStandingPublishRequests) + "\n";
+    result += "\t sessionLocaleIdsSize = " + to_string(config->sessionLocaleIdsSize) + "\n";
     result += "}\n";
 
     return result;
@@ -80,8 +84,7 @@ int main()
     // cout << "Custom applicationUri: " << UAString2String(applicationUri) << endl;
     // clientConfig->applicationUri = applicationUri;
 
-    cout << "\n# Custom client config: " << dumpClientConfigToString(clientConfig) << endl;
-
+    cout << "\n# Using client config: " << dumpClientConfigToString(client.getConfig()) << endl;
     cout << "setCustomConfig..." << endl << endl;
     client.setCustomConfig(clientConfig);
 
