@@ -81,9 +81,9 @@
 #if defined(__GNUC__)
 #ifdef __APPLE__
 #include <mach/error.h>
-#endif
 #else
 #include <error.h>
+#endif
 #endif
 //
 #include <map>

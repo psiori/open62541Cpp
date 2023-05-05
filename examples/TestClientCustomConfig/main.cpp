@@ -70,6 +70,8 @@ int main()
     // Create a function pointer to the myLogger function
     Open62541::Client::LoggerFuncPtr customLoggerFunction = &customLogger;
     // Create a UA_Logger structure with the custom log function
+    // https://github.com/open62541/open62541/blob/2851b990a3b
+    //     /include/open62541/plugin/log.h#L55-L66
     UA_Logger customLogger = (UA_Logger){
         .log     = customLoggerFunction,         //
         .clear   = clientConfig->logger.clear,   //

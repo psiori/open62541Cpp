@@ -269,8 +269,8 @@ public:
             // Create a UA_Logger structure with the custom log function
             UA_Logger customLogger = (UA_Logger){
                 .log     = loggerFuncPtr,
-                .clear   = clientConfig->logger.clear,   // Recycle previous
-                .context = clientConfig->logger.context  // Recycle previous
+                .context = clientConfig->logger.context,  // Recycle previous
+                .clear   = clientConfig->logger.clear     // Recycle previous
             };
             // Set the clientConfig logger to use the customLogger
             clientConfig->logger = customLogger;
