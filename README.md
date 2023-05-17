@@ -1,9 +1,9 @@
 # Open62541 C++ Library for Open62541 version 1.3.5
 
-This is a set of wrapper classes for the Open62541 C OPC UA library version 1.2 The objective is to reduce the code 
-required, by a considerable amount, and allow object orientated coding.
+This is a set of wrapper classes for the Open62541 C OPC UA library version `v1.2.666`
+The objective is to reduce the code required, by a considerable amount, and allow object orientated coding.
 
-Do not assume any OPC UA feature is implemented or complete or optimally done. Support will be added as and when 
+Do not assume any OPC UA feature is implemented or complete or optimally done. Support will be added as and when
 it is needed. An effort is made to include features added to the C library, eventually.
 
 Feel free to constructively comment or contribute.
@@ -18,10 +18,10 @@ The C++ wrappers map on to the open62541 C library, keeping the same function na
 Most UA_* types are wrapped such that for each UA_* structure there is a correspond C++ class to manage it. Hence,
 UA_NodeId is wrapped with Open62541::NodeId
 
-Assignments or copy construction always use deep copies. It is possible to shallow copy UA_* items to the 
+Assignments or copy construction always use deep copies. It is possible to shallow copy UA_* items to the
 corresponding C++ managed objects. Do not do it, unless you really, really want to.
 
-Context pointers attached to nodes on creation are assumed to be objects derived from Open62541::NodeContext. The 
+Context pointers attached to nodes on creation are assumed to be objects derived from Open62541::NodeContext. The
 NodeContext class includes generalised handing of DataValue, node constructor/destructor, and value callbacks (that can be lambdas).
 
 Most callbacks are wrapped as virtual functions in the associated class. When registering a callback the pointer to the associated class instance is used as the context pointer.
@@ -34,7 +34,7 @@ The NodeId class wraps the NodeId item. Many functions accept NULL NodeId refere
 
 # Building
 
-The library is built using cmake. The examples show how to use the classes and should correspond to many of the C 
+The library is built using cmake. The examples show how to use the classes and should correspond to many of the C
 library examples. These examples can be build with `-Dwith_examples=ON`.
 
 # Examples
@@ -61,9 +61,7 @@ UA_ENABLE_AMALGAMATION           OFF
 UA_ENABLE_DA                     ON
 UA_ENABLE_DISCOVERY              ON
 UA_ENABLE_DISCOVERY_MULTICAST    ON
-UA_ENABLE_ENCRYPTION             ON
-UA_ENABLE_ENCRYPTION_MBEDTLS     OFF
-UA_ENABLE_ENCRYPTION_OPENSSL     ON
+DUA_ENABLE_ENCRYPTION            OPENSSL
 UA_ENABLE_HISTORIZING            ON
 UA_ENABLE_METHODCALLS            ON
 UA_ENABLE_MICRO_EMB_DEV_PROFIL   OFF
