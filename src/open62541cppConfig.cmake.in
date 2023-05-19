@@ -6,6 +6,6 @@ set_and_check(open62541cpp_INSTALL_DIR "@PACKAGE_LIB_INSTALL_DIR@")
 set_and_check(open62541cpp_LIBRARY "@PACKAGE_LIB_INSTALL_DIR@/libopen62541cpp${CMAKE_SHARED_LIBRARY_SUFFIX}")
 # set_and_check(open62541cpp_LIBRARY "@PACKAGE_LIB_INSTALL_DIR@/libopen62541cpp${CMAKE_STATIC_LIBRARY_SUFFIX}")
 set(open62541cpp_LIBRARIES ${open62541cpp_LIBRARY})
-set(open62541cpp_INCLUDE_DIR ${open62541cpp_INCLUDE_DIR})
+set(open62541cpp_INCLUDE_DIRS ${open62541cpp_INCLUDE_DIR})
 
 check_required_components(open62541cpp)
