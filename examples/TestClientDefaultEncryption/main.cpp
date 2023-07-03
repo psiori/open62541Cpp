@@ -3,6 +3,7 @@
 #include <open62541cpp/open62541client.h>
 #include <open62541cpp/clientsubscription.h>
 #include <open62541cpp/monitoreditem.h>
+#include <regex>
 //
 using namespace std;
 
@@ -25,16 +26,17 @@ std::string dumpClientConfigToString(const UA_ClientConfig* config)
     result += "\t securityPoliciesSize = " + to_string(config->securityPoliciesSize) + "\n";
     if (config->securityPoliciesSize > 0)
         for (size_t i = 0; i < config->securityPoliciesSize; i++)
-            result += "\t securityPolicies->policyUri[" + to_string(i) + "] = "
-                   + UAString2String(config->securityPolicies[i].policyUri) + "\n";
+            result += "\t securityPolicies->policyUri[" + to_string(i) + "] = " + UAString2String(config->securityPolicies[i].policyUri) + "\n";
     // result += "\tsecurityPolicies->localCertificate = " + UAString2String(config->securityPolicies->localCertificate)
     // + "\n";
-
-
 
     result +=
         "\t clientDescription.applicationUri = " + UAString2String(config->clientDescription.applicationUri) + "\n";
     result += "\t applicationUri = " + UAString2String(config->applicationUri) + "\n";
+    // result += "\t certificateVerification = " + to_string(config->) + "\n";
+    std::string callback = (config->stateCallback != nullptr) ? "SET": "ERROR" ;
+    result += "\t stateCallback = " + callback + "\n";
+    result += "\t securityMode = " + to_string(config->securityMode) + "\n";
     result += "\t securityPolicyUri = " + UAString2String(config->securityPolicyUri) + "\n";
     result += "\t outStandingPublishRequests = " + to_string(config->outStandingPublishRequests) + "\n";
     result += "\t sessionLocaleIdsSize = " + to_string(config->sessionLocaleIdsSize) + "\n";
@@ -115,33 +117,45 @@ int main()
     // clientConfig->logger = customLogger;
     cout << "Redirecting output stream...done" << endl;
 
-
     // cout << "setCustomConfig..." << endl << endl;
     // client.setCustomConfig(clientConfig);
 
-    auto serverAddress = "opc.tcp://localhost:4840";  // TestServer
+    // auto serverAddress = "opc.tcp://localhost:4840";  // TestServer
+    auto serverAddress = "opc.tcp://192.168.177.192:49320";  // Kepserver
+    cout << "\t Connecting to server= " << serverAddress << endl;
 
-    std::string username = "*****"; // FIXME : from parameter
-    std::string password = "*****"; // FIXME : from parameter
+
+    std::string username = "*****";
+    std::string password = "*****";
     cout << "\t username= " << username << endl;
     cout << "\t password= " << password << endl;
 
-    std::string certfile, keyfile;
-    certfile = "~/client_certificate.der"; // FIXME : from parameter
-    keyfile  = "~/client_private_key.pem"; // FIXME : from parameter
+    std::string certfile, keyfile, server_cert;
+    certfile = "/Users/sergio/Downloads/client_certificate.der";
+    keyfile  = "/Users/sergio/Downloads/client_private_key.pem";
+    // server_cert  = "/Users/sergio/Downloads/kepserver_freiburg.der";
     printf("Reading certfile=%s \n", certfile.c_str());
     printf("Reading keyfile=%s \n", keyfile.c_str());
+    // printf("Reading server_cert=%s \n", server_cert.c_str());
     UA_ByteString certificate = loadFile(certfile);
     UA_ByteString privateKey  = loadFile(keyfile);
+    // UA_ByteString server_certificate  = loadFile(server_cert);
+
+    // UA_ByteString trustList[1];
+    // trustList[0] = server_certificate;
+    // size_t trustListSize = sizeof(trustList) / sizeof(UA_ByteString);
+    // printf("trustList[0].length=%zu \n", trustList[0].length);
+    // printf("trustListSize=%zu \n", trustListSize);
 
     printf("\n\t UA_ClientConfig_setDefaultEncryption..... \n");
+    // UA_ClientConfig_setDefaultEncryption(clientConfig, certificate, privateKey, trustList,trustListSize, NULL, 0);
     UA_ClientConfig_setDefaultEncryption(clientConfig, certificate, privateKey, NULL, 0, NULL, 0);
     UA_CertificateVerification_AcceptAll(&clientConfig->certificateVerification);
     UA_ByteString_clear(&certificate);
     UA_ByteString_clear(&privateKey);
 
-    UA_String securityPolicyUri         = UA_STRING_NULL;
-    UA_MessageSecurityMode securityMode = UA_MESSAGESECURITYMODE_INVALID; /* allow everything */
+    // UA_String securityPolicyUri         = UA_STRING_NULL;
+    // UA_MessageSecurityMode securityMode = UA_MESSAGESECURITYMODE_SIGNANDENCRYPT; /* allow everything */
     // clientConfig->securityMode      = securityMode; // FIXME : from parameter
     clientConfig->securityMode = UA_MESSAGESECURITYMODE_SIGNANDENCRYPT;
     // clientConfig->securityPolicyUri = securityPolicyUri; // FIXME : from parameter
@@ -151,8 +165,13 @@ int main()
      * The script for creating a self-created certificate generates a certificate
      * with the Uri specified below.*/
     UA_ApplicationDescription_clear(&clientConfig->clientDescription);
-    clientConfig->clientDescription.applicationUri  = UA_STRING_ALLOC("urn:freeopcua:client");
+    clientConfig->clientDescription.applicationUri  = UA_String_fromChars("urn:freeopcua:client");
+    // clientConfig->applicationUri  = UA_String_fromChars("urn:freeopcua:client");
     clientConfig->clientDescription.applicationType = UA_APPLICATIONTYPE_CLIENT;
+    // clientConfig->outStandingPublishRequests = 0;
+
+    cout << "setting CustomConfig..." << endl << endl;
+    client.setCustomConfig(clientConfig,false);
 
     cout << "\n# Using client config: " << dumpClientConfigToString(client.getConfig()) << endl;
 
@@ -165,10 +184,81 @@ int main()
         // cout << "Connected" << endl;
         UA_UInt32 subId = 0;
         if (client.addSubscription(subId)) {
+
+            /* Read the server-time */
+            cout << "Check server time:" << endl;
+            UA_Variant value;
+            UA_Variant_init(&value);
+            UA_Client_readValueAttribute(client.client(),
+                                         UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME),
+                                         &value);
+            if (UA_Variant_hasScalarType(&value, &UA_TYPES[UA_TYPES_DATETIME])) {
+                UA_DateTimeStruct dts = UA_DateTime_toStruct(*(UA_DateTime*)value.data);
+                UA_LOG_INFO(UA_Log_Stdout,
+                            UA_LOGCATEGORY_USERLAND,
+                            "The server date is: %02u-%02u-%04u %02u:%02u:%02u.%03u",
+                            dts.day,
+                            dts.month,
+                            dts.year,
+                            dts.hour,
+                            dts.min,
+                            dts.sec,
+                            dts.milliSec);
+            }
+            UA_Variant_clear(&value);
+
             cout << "Subscription Created id = " << subId << endl;
-            cout << "iterating..." << endl;
-            client.runIterate();
-            exit(-1);
+
+            auto f = [](Open62541::ClientSubscription& c, Open62541::MonitoredItem* m, UA_DataValue* v) {
+                    cout << "Data Change SubId " << c.id() << " Monitor Item Id " << m->id() << " Value "
+                         << v->value.type->typeName << " " << Open62541::dataValueToString(v) << endl;
+                };
+
+            // Extract node names from node_path string
+            // std::string node_path = "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth, 2:Weather, 2:Temperature";
+            // std::string node_path = "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth, 2:WorkingCycles_Available";
+            std::string node_path = "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth, 2:WorkingCycles";
+            std::vector<std::string> varpath;
+            const std::regex re("\\d+:(\\w+)");
+            for (std::sregex_iterator it(node_path.begin(), node_path.end(), re);
+                it != std::sregex_iterator();
+                ++it) {
+                varpath.push_back((*it)[1]);
+                std::cout << " ## " << (*it)[1] << std::endl;
+            }
+
+            Open62541::NodeId found_node;
+            bool found_node_id = false;
+            static const Open62541::NodeId node_root(0, UA_NS0ID_ROOTFOLDER);
+            found_node_id = client.nodeIdFromPath(node_root, varpath, found_node);
+            cout << "node found?="<< found_node_id  << ", found_node=" << Open62541::toString(found_node) << endl;
+
+            cout << "Adding a data change monitor item" << endl;
+            // Open62541::NodeId nodeNumber(idx, "Number_Value");
+            Open62541::ClientSubscription& cs = *client.subscription(subId);
+            cout << "client_subscription=" << &cs <<  endl;
+            unsigned mdc                      = cs.addMonitorNodeId(f, found_node);  // returns monitor id
+            if (!mdc) {
+                cout << "Failed to add monitor data change " << endl;
+            }
+            cout << "Added MonitorNodeId=" << mdc << endl;
+
+            cout << "iterating...1min" << endl;
+            // run for one minute
+            //
+            for (int j = 0; j < 60; j++) {
+                // if(j % 5 == 0){
+                    cout << "iterating..." << j  << endl;
+                // }
+                // Open62541::Variant VALUE(55.55);
+                Open62541::Variant VALUE("string_test_value"+ std::to_string(j));
+
+                auto result = client.setValueAttribute(found_node, VALUE);
+                cout << "writing result=" << result << endl;
+
+                client.runIterate(1000);
+            }
+            cout << "iterating...ended" << endl;
             // client.run();  // this will loop until interrupted
         }
         else {
