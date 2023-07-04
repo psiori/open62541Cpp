@@ -253,10 +253,10 @@ public:
                 UA_Client_getConfig(_client)->stateCallback                  = stateCallback;
                 UA_Client_getConfig(_client)->subscriptionInactivityCallback = subscriptionInactivityCallback;
             }
-            else{
+            else {
                 // Dont reset client config context
-                clientConfig->clientContext = this;
-                clientConfig->stateCallback = stateCallback;
+                clientConfig->clientContext                  = this;
+                clientConfig->stateCallback                  = stateCallback;
                 clientConfig->subscriptionInactivityCallback = subscriptionInactivityCallback;
             }
         }

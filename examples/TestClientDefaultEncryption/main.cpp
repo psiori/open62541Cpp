@@ -24,14 +24,15 @@ std::string dumpClientConfigToString(const UA_ClientConfig* config)
     result += "\t securityPoliciesSize = " + to_string(config->securityPoliciesSize) + "\n";
     if (config->securityPoliciesSize > 0)
         for (size_t i = 0; i < config->securityPoliciesSize; i++)
-            result += "\t securityPolicies->policyUri[" + to_string(i) + "] = " + UAString2String(config->securityPolicies[i].policyUri) + "\n";
+            result += "\t securityPolicies->policyUri[" + to_string(i) +
+                      "] = " + UAString2String(config->securityPolicies[i].policyUri) + "\n";
     // result += "\tsecurityPolicies->localCertificate = " + UAString2String(config->securityPolicies->localCertificate)
     // + "\n";
 
     result +=
         "\t clientDescription.applicationUri = " + UAString2String(config->clientDescription.applicationUri) + "\n";
     result += "\t applicationUri = " + UAString2String(config->applicationUri) + "\n";
-    std::string callback = (config->stateCallback != nullptr) ? "SET": "ERROR" ;
+    std::string callback = (config->stateCallback != nullptr) ? "SET" : "ERROR";
     result += "\t stateCallback = " + callback + "\n";
     result += "\t securityMode = " + to_string(config->securityMode) + "\n";
     result += "\t securityPolicyUri = " + UAString2String(config->securityPolicyUri) + "\n";
@@ -113,11 +114,9 @@ int main()
     // Set the clientConfig logger to use the customLogger
     cout << "Redirecting output stream...done" << endl;
 
-
     // auto serverAddress = "opc.tcp://localhost:4840";  // TestServer
     auto serverAddress = "opc.tcp://192.168.177.192:49320";  // Kepserver
     cout << "\t Connecting to server= " << serverAddress << endl;
-
 
     std::string username = "*****";
     std::string password = "*****";
@@ -138,7 +137,7 @@ int main()
     UA_ByteString_clear(&certificate);
     UA_ByteString_clear(&privateKey);
 
-    clientConfig->securityMode = UA_MESSAGESECURITYMODE_SIGNANDENCRYPT;
+    clientConfig->securityMode      = UA_MESSAGESECURITYMODE_SIGNANDENCRYPT;
     clientConfig->securityPolicyUri = UA_String_fromChars("http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256");
 
     /* The application URI must be the same as the one in the certificate.
@@ -150,7 +149,7 @@ int main()
     // clientConfig->outStandingPublishRequests = 0;
 
     cout << "setting CustomConfig..." << endl << endl;
-    client.setCustomConfig(clientConfig,false);
+    client.setCustomConfig(clientConfig, false);
 
     cout << "\n# Using client config: " << dumpClientConfigToString(client.getConfig()) << endl;
 
@@ -186,19 +185,20 @@ int main()
             cout << "Subscription Created id = " << subId << endl;
 
             auto f = [](Open62541::ClientSubscription& c, Open62541::MonitoredItem* m, UA_DataValue* v) {
-                    cout << "Data Change SubId " << c.id() << " Monitor Item Id " << m->id() << " Value "
-                         << v->value.type->typeName << " " << Open62541::dataValueToString(v) << endl;
-                };
+                cout << "Data Change SubId " << c.id() << " Monitor Item Id " << m->id() << " Value "
+                     << v->value.type->typeName << " " << Open62541::dataValueToString(v) << endl;
+            };
 
             // Extract node names from node_path string
-            // std::string node_path = "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth, 2:Weather, 2:Temperature";
-            // std::string node_path = "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth, 2:WorkingCycles_Available";
-            std::string node_path = "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth, 2:WorkingCycles";
+            // std::string node_path = "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth,
+            // 2:Weather, 2:Temperature";
+            // std::string node_path = "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth,
+            // 2:WorkingCycles_Available";
+            std::string node_path =
+                "0:Objects, 2:OPCUA_new, 2:AutonomousWoodyard, 0:Objects, 2:CraneSouth, 2:WorkingCycles";
             std::vector<std::string> varpath;
             const std::regex re("\\d+:(\\w+)");
-            for (std::sregex_iterator it(node_path.begin(), node_path.end(), re);
-                it != std::sregex_iterator();
-                ++it) {
+            for (std::sregex_iterator it(node_path.begin(), node_path.end(), re); it != std::sregex_iterator(); ++it) {
                 varpath.push_back((*it)[1]);
                 std::cout << " ## " << (*it)[1] << std::endl;
             }
@@ -207,12 +207,12 @@ int main()
             bool found_node_id = false;
             static const Open62541::NodeId node_root(0, UA_NS0ID_ROOTFOLDER);
             found_node_id = client.nodeIdFromPath(node_root, varpath, found_node);
-            cout << "node found?="<< found_node_id  << ", found_node=" << Open62541::toString(found_node) << endl;
+            cout << "node found?=" << found_node_id << ", found_node=" << Open62541::toString(found_node) << endl;
 
             cout << "Adding a data change monitor item" << endl;
             Open62541::ClientSubscription& cs = *client.subscription(subId);
-            cout << "client_subscription=" << &cs <<  endl;
-            unsigned mdc                      = cs.addMonitorNodeId(f, found_node);  // returns monitor id
+            cout << "client_subscription=" << &cs << endl;
+            unsigned mdc = cs.addMonitorNodeId(f, found_node);  // returns monitor id
             if (!mdc) {
                 cout << "Failed to add monitor data change " << endl;
             }
@@ -223,8 +223,8 @@ int main()
             // run for one minute
             //
             for (int j = 0; j < 60; j++) {
-                    cout << "iterating..." << j  << endl;
-                Open62541::Variant VALUE("string_test_value"+ std::to_string(j));
+                cout << "iterating..." << j << endl;
+                Open62541::Variant VALUE("string_test_value" + std::to_string(j));
 
                 auto result = client.setValueAttribute(found_node, VALUE);
                 cout << "writing result=" << result << endl;
