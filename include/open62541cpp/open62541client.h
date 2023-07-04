@@ -241,14 +241,24 @@ public:
 
     /*!
      * \brief Initialise custom client config
+     * \param clientConfig client configuration
+     * \param setDefaultConfig flag to reset client config context
      */
-    void setCustomConfig(UA_ClientConfig* clientConfig)
+    void setCustomConfig(UA_ClientConfig* clientConfig, bool setDefaultConfig = true)
     {
         if (_client) {
-            UA_ClientConfig_setDefault(clientConfig);
-            UA_Client_getConfig(_client)->clientContext                  = this;
-            UA_Client_getConfig(_client)->stateCallback                  = stateCallback;
-            UA_Client_getConfig(_client)->subscriptionInactivityCallback = subscriptionInactivityCallback;
+            if (setDefaultConfig) {
+                UA_ClientConfig_setDefault(clientConfig);
+                UA_Client_getConfig(_client)->clientContext                  = this;
+                UA_Client_getConfig(_client)->stateCallback                  = stateCallback;
+                UA_Client_getConfig(_client)->subscriptionInactivityCallback = subscriptionInactivityCallback;
+            }
+            else {
+                // Dont reset client config context
+                clientConfig->clientContext                  = this;
+                clientConfig->stateCallback                  = stateCallback;
+                clientConfig->subscriptionInactivityCallback = subscriptionInactivityCallback;
+            }
         }
     }
 

@@ -11,7 +11,7 @@ set(OPEN62541_CPP open62541cpp)
 ## build settings - try and match the c library version
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 2)
-set(VERSION_PATCH 666)
+set(VERSION_PATCH 777)
 
 set(PACKAGE_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
