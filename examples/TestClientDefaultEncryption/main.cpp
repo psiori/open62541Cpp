@@ -1,17 +1,15 @@
 #include <iostream>
-//
+
 #include <open62541cpp/open62541client.h>
 #include <open62541cpp/clientsubscription.h>
 #include <open62541cpp/monitoreditem.h>
 #include <regex>
-//
+
 using namespace std;
 
 std::string UAString2String(const UA_String s)
 {
-    // cout << "str_lenght: " << s.length << endl;
     std::string result((char*)s.data, s.length);
-    // cout << "str: " << result << endl;
     return result;
 }
 
@@ -33,7 +31,6 @@ std::string dumpClientConfigToString(const UA_ClientConfig* config)
     result +=
         "\t clientDescription.applicationUri = " + UAString2String(config->clientDescription.applicationUri) + "\n";
     result += "\t applicationUri = " + UAString2String(config->applicationUri) + "\n";
-    // result += "\t certificateVerification = " + to_string(config->) + "\n";
     std::string callback = (config->stateCallback != nullptr) ? "SET": "ERROR" ;
     result += "\t stateCallback = " + callback + "\n";
     result += "\t securityMode = " + to_string(config->securityMode) + "\n";
@@ -114,11 +111,8 @@ int main()
         .context = clientConfig->logger.context  //
     };
     // Set the clientConfig logger to use the customLogger
-    // clientConfig->logger = customLogger;
     cout << "Redirecting output stream...done" << endl;
 
-    // cout << "setCustomConfig..." << endl << endl;
-    // client.setCustomConfig(clientConfig);
 
     // auto serverAddress = "opc.tcp://localhost:4840";  // TestServer
     auto serverAddress = "opc.tcp://192.168.177.192:49320";  // Kepserver
@@ -133,32 +127,18 @@ int main()
     std::string certfile, keyfile, server_cert;
     certfile = "/Users/sergio/Downloads/client_certificate.der";
     keyfile  = "/Users/sergio/Downloads/client_private_key.pem";
-    // server_cert  = "/Users/sergio/Downloads/kepserver_freiburg.der";
     printf("Reading certfile=%s \n", certfile.c_str());
     printf("Reading keyfile=%s \n", keyfile.c_str());
-    // printf("Reading server_cert=%s \n", server_cert.c_str());
     UA_ByteString certificate = loadFile(certfile);
     UA_ByteString privateKey  = loadFile(keyfile);
-    // UA_ByteString server_certificate  = loadFile(server_cert);
-
-    // UA_ByteString trustList[1];
-    // trustList[0] = server_certificate;
-    // size_t trustListSize = sizeof(trustList) / sizeof(UA_ByteString);
-    // printf("trustList[0].length=%zu \n", trustList[0].length);
-    // printf("trustListSize=%zu \n", trustListSize);
 
     printf("\n\t UA_ClientConfig_setDefaultEncryption..... \n");
-    // UA_ClientConfig_setDefaultEncryption(clientConfig, certificate, privateKey, trustList,trustListSize, NULL, 0);
     UA_ClientConfig_setDefaultEncryption(clientConfig, certificate, privateKey, NULL, 0, NULL, 0);
     UA_CertificateVerification_AcceptAll(&clientConfig->certificateVerification);
     UA_ByteString_clear(&certificate);
     UA_ByteString_clear(&privateKey);
 
-    // UA_String securityPolicyUri         = UA_STRING_NULL;
-    // UA_MessageSecurityMode securityMode = UA_MESSAGESECURITYMODE_SIGNANDENCRYPT; /* allow everything */
-    // clientConfig->securityMode      = securityMode; // FIXME : from parameter
     clientConfig->securityMode = UA_MESSAGESECURITYMODE_SIGNANDENCRYPT;
-    // clientConfig->securityPolicyUri = securityPolicyUri; // FIXME : from parameter
     clientConfig->securityPolicyUri = UA_String_fromChars("http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256");
 
     /* The application URI must be the same as the one in the certificate.
@@ -166,7 +146,6 @@ int main()
      * with the Uri specified below.*/
     UA_ApplicationDescription_clear(&clientConfig->clientDescription);
     clientConfig->clientDescription.applicationUri  = UA_String_fromChars("urn:freeopcua:client");
-    // clientConfig->applicationUri  = UA_String_fromChars("urn:freeopcua:client");
     clientConfig->clientDescription.applicationType = UA_APPLICATIONTYPE_CLIENT;
     // clientConfig->outStandingPublishRequests = 0;
 
@@ -176,11 +155,8 @@ int main()
     cout << "\n# Using client config: " << dumpClientConfigToString(client.getConfig()) << endl;
 
     cout << "Connecting...." << endl;
-    // if (client.connect(serverAddress, false)) {
     if (client.connectUsername(serverAddress, username, password, false)) {
-        // int idx = client.namespaceGetIndex("urn:test:test");
         cout << "\n# Connected client config: " << dumpClientConfigToString(client.getConfig()) << endl;
-        // if (idx > 1) {
         // cout << "Connected" << endl;
         UA_UInt32 subId = 0;
         if (client.addSubscription(subId)) {
@@ -234,7 +210,6 @@ int main()
             cout << "node found?="<< found_node_id  << ", found_node=" << Open62541::toString(found_node) << endl;
 
             cout << "Adding a data change monitor item" << endl;
-            // Open62541::NodeId nodeNumber(idx, "Number_Value");
             Open62541::ClientSubscription& cs = *client.subscription(subId);
             cout << "client_subscription=" << &cs <<  endl;
             unsigned mdc                      = cs.addMonitorNodeId(f, found_node);  // returns monitor id
@@ -244,13 +219,11 @@ int main()
             cout << "Added MonitorNodeId=" << mdc << endl;
 
             cout << "iterating...1min" << endl;
+
             // run for one minute
             //
             for (int j = 0; j < 60; j++) {
-                // if(j % 5 == 0){
                     cout << "iterating..." << j  << endl;
-                // }
-                // Open62541::Variant VALUE(55.55);
                 Open62541::Variant VALUE("string_test_value"+ std::to_string(j));
 
                 auto result = client.setValueAttribute(found_node, VALUE);
@@ -264,10 +237,6 @@ int main()
         else {
             cout << "Subscription Failed" << endl;
         }
-        // }
-        // else {
-        //     cout << "TestServer not running idx = " << idx << endl;
-        // }
     }
     else {
         cout << "Subscription Failed" << endl;
